@@ -20,7 +20,7 @@ export async function GET(req: Request) {
     const symbols = symbolsParam.split(",").map((s) => s.trim());
 
     // Fetch quotes using yahoo-finance2
-    const quotes = await yahooFinance.quote(symbols);
+    const quotes = await yahooFinance.quote(symbols) as any;
 
     // Map to a friendlier dictionary format { "RELIANCE.NS": 2500 }
     const prices: Record<string, number> = {};
