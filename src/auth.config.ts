@@ -2,8 +2,9 @@ import type { NextAuthConfig } from "next-auth"
 import Google from "next-auth/providers/google"
 
 export default {
-  debug: true,
+  secret: process.env.AUTH_SECRET,
   trustHost: true,
+  debug: true,
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
