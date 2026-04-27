@@ -5,10 +5,9 @@ import authConfig from "./auth.config"
 import Credentials from "next-auth/providers/credentials"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  trustHost: true,
+  ...authConfig,
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
-  ...authConfig,
   providers: [
     ...authConfig.providers,
     Credentials({
