@@ -4,19 +4,22 @@ import authConfig from './auth.config'
 const { auth } = NextAuth(authConfig)
 
 export default auth((req) => {
+  const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
-  const isAuthPageRoute = req.nextUrl.pathname.startsWith('/login');
-  
+  const isAuthPageRoute = nextUrl.pathname.startsWith('/login');
+  const isApiRoute = nextUrl.pathname.startsWith('/api');
+
+  if (isApiRoute) return;
+
   if (isAuthPageRoute) {
     if (isLoggedIn) {
-      return Response.redirect(new URL('/', req.nextUrl));
+      return Response.redirect(new URL('/', nextUrl));
     }
     return;
   }
 
-  // If not logged in and not on auth page, redirect to login
   if (!isLoggedIn) {
-    return Response.redirect(new URL('/login', req.nextUrl));
+    return Response.redirect(new URL('/login', nextUrl));
   }
 })
 
