@@ -105,7 +105,7 @@ export function HoldingsClient({ initialPortfolios }: { initialPortfolios: any[]
                 {globalHoldings.map((asset, i) => (
                   <motion.tr variants={item} key={`${asset.id}-${i}`} className="border-b border-zinc-100 dark:border-zinc-800/50 hover:bg-white dark:hover:bg-zinc-800/50 transition-colors">
                     <td className="p-4 pl-6 text-sm font-medium text-zinc-600 dark:text-zinc-300">
-                        <Link href={`/portfolios/${asset.portfolioId}`} className="hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline">{asset.portfolioName}</Link>
+                        <Link href={`/portfolioManager/portfolios/${asset.portfolioId}`} className="hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline">{asset.portfolioName}</Link>
                     </td>
                     <td className="p-4">
                       <div className="font-bold text-zinc-900 dark:text-white">{asset.symbol}</div>
