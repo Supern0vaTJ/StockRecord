@@ -96,7 +96,7 @@ export function TransactionsClient({ initialPortfolios }: { initialPortfolios: a
                       {new Date(tx.date).toLocaleDateString()}
                     </td>
                     <td className="p-4 font-medium text-zinc-600 dark:text-zinc-300">
-                      <Link href={`/portfolios/${tx.portfolioId}`} className="hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline">{tx.portfolioName}</Link>
+                      <Link href={`/portfolioManager/portfolios/${tx.portfolioId}`} className="hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline">{tx.portfolioName}</Link>
                     </td>
                     <td className="p-4">
                       <div className="font-bold text-zinc-900 dark:text-white">{tx.symbol}</div>

@@ -224,7 +224,7 @@ export default function DashboardClient({ initialPortfolios }: { initialPortfoli
                   
                   {/* Header row with title + edit button */}
                   <div className="flex items-start justify-between gap-2 mb-4">
-                    <Link href={`/portfolios/${portfolio.id}`} className="flex-1 min-w-0">
+                    <Link href={`/portfolioManager/portfolios/${portfolio.id}`} className="flex-1 min-w-0">
                       <h3 className="text-xl font-bold text-zinc-900 dark:text-white group-hover:text-indigo-500 transition-colors truncate">{portfolio.name}</h3>
                       <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{pActiveAssets.length} active holding{pActiveAssets.length !== 1 ? "s" : ""}</p>
                     </Link>
@@ -260,7 +260,7 @@ export default function DashboardClient({ initialPortfolios }: { initialPortfoli
                   </div>
 
                   {/* View link */}
-                  <Link href={`/portfolios/${portfolio.id}`} className="flex items-center justify-end text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors group/link">
+                  <Link href={`/portfolioManager/portfolios/${portfolio.id}`} className="flex items-center justify-end text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors group/link">
                     View Details
                     <ArrowUpRight className="w-4 h-4 ml-1 translate-y-0.5 group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5 transition-transform" />
                   </Link>
