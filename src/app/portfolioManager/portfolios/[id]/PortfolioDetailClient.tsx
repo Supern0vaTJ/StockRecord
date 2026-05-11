@@ -115,7 +115,7 @@ export default function PortfolioDetailClient({ portfolio }: { portfolio: any })
       <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-transparent blur-[100px] -z-10 pointer-events-none rounded-full" />
 
       {/* Back link */}
-      <Link href="/" className="inline-flex items-center text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
+      <Link href="/portfolioManager" className="inline-flex items-center text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
         <ArrowLeft className="w-4 h-4 mr-2" /> Back to Dashboard
       </Link>
 
