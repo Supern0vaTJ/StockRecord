@@ -3,6 +3,11 @@ import authConfig from './auth.config'
 
 const { auth } = NextAuth(authConfig)
 
+const BYPASS_AUTH = process.env.BYPASS_AUTH === 'true';
+
+// Routes that require authentication
+const PROTECTED_PREFIXES = ['/portfolioManager', '/reportSummarizer', '/patternRecognizer', '/settings'];
+
 export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
@@ -11,16 +16,28 @@ export default auth((req) => {
 
   if (isApiRoute) return;
 
+  // Local dev escape hatch: skip all auth redirects.
+  if (BYPASS_AUTH) return;
+
+  // If on the login page and already logged in, redirect to portfolio manager
   if (isAuthPageRoute) {
     if (isLoggedIn) {
-      return Response.redirect(new URL('/', nextUrl));
+      return Response.redirect(new URL('/portfolioManager', nextUrl));
     }
     return;
   }
 
-  if (!isLoggedIn) {
+  // Check if the current route is a protected route
+  const isProtectedRoute = PROTECTED_PREFIXES.some(prefix =>
+    nextUrl.pathname.startsWith(prefix)
+  );
+
+  // Only redirect to login if accessing a protected route while not logged in
+  if (isProtectedRoute && !isLoggedIn) {
     return Response.redirect(new URL('/login', nextUrl));
   }
+
+  // All other routes (homepage, etc.) are public — no redirect
 })
 
 export const config = {
