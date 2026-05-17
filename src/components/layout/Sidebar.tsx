@@ -11,10 +11,12 @@ import {
   User,
   FileText,
   TrendingUp,
+  Newspaper,
   ChevronDown,
   ChevronRight,
   PanelLeftClose,
   PanelLeft,
+  Home,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -40,12 +42,26 @@ export function Sidebar({ user }: { user?: NextAuthUser }) {
 
   // Auto-collapse on mobile/tablet (< 1024px), expand on desktop
   useEffect(() => {
+    let lastWidth = window.innerWidth;
+    
     const handleResize = () => {
-      if (window.innerWidth < 1024) {
-        setCollapsed(true);
+      const currentWidth = window.innerWidth;
+      // Only toggle collapse if width actually changes (ignores mobile scroll address bar resize)
+      if (currentWidth !== lastWidth) {
+        if (currentWidth < 1024 && lastWidth >= 1024) {
+          setCollapsed(true);
+        } else if (currentWidth >= 1024 && lastWidth < 1024) {
+          setCollapsed(false);
+        }
+        lastWidth = currentWidth;
       }
     };
-    handleResize();
+
+    // Initial check on mount
+    if (window.innerWidth < 1024) {
+      setCollapsed(true);
+    }
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -118,6 +134,15 @@ export function Sidebar({ user }: { user?: NextAuthUser }) {
       {/* Navigation */}
       <div className="flex flex-1 flex-col overflow-y-auto px-4 py-4">
         <nav className="flex-1 space-y-1">
+          {/* ── Home ── */}
+          <Link
+            href="/"
+            className={linkClass(pathname === "/")}
+          >
+            <Home className={iconClass(pathname === "/")} />
+            {!collapsed && "Home"}
+          </Link>
+
           {/* ── Portfolio Manager (with sub-items) ── */}
           <button
             onClick={() => setPortfolioOpen(!portfolioOpen)}
@@ -154,6 +179,24 @@ export function Sidebar({ user }: { user?: NextAuthUser }) {
             </div>
           )}
 
+          {/* ── SendNues ── */}
+          <Link
+            href="/sendNues"
+            className={linkClass(isToolActive("/sendNues") ?? false)}
+          >
+            <Newspaper
+              className={iconClass(isToolActive("/sendNues") ?? false)}
+            />
+            {!collapsed && (
+              <span className="flex items-center gap-2">
+                Send Nues
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-semibold leading-none">
+                  New
+                </span>
+              </span>
+            )}
+          </Link>
+
           {/* ── Report Summarizer ── */}
           <Link
             href="/reportSummarizer"
@@ -165,8 +208,8 @@ export function Sidebar({ user }: { user?: NextAuthUser }) {
             {!collapsed && (
               <span className="flex items-center gap-2">
                 Report Summarizer
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 font-semibold leading-none">
-                  Soon
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 font-semibold leading-none">
+                  New
                 </span>
               </span>
             )}
