@@ -91,6 +91,29 @@ model Transaction {
   asset    Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
 }
 
+model NewsSignal {
+  id             String   @id @default(cuid())
+  symbol         String
+  title          String
+  summary        String
+  fullContent    String?  @db.Text
+  url            String?
+  source         String?
+  publishedAt    DateTime
+  sentiment      String   @default("neutral") // positive, neutral, negative
+  category       String   @default("Market Sentiment")
+  createdAt      DateTime @default(now())
+  // WhatsApp alert fields (used by cron job in Phase 2)
+  userId         String?  // null = market-wide signal, set = portfolio-specific
+  whatsappSent   Boolean  @default(false)
+  whatsappSentAt DateTime?
+
+  @@index([symbol])
+  @@index([publishedAt])
+  @@index([userId])
+  @@index([whatsappSent])
+}
+
 enum UserRole {
   USER
   ADMIN

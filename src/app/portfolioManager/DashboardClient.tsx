@@ -80,10 +80,15 @@ export default function DashboardClient({ initialPortfolios }: { initialPortfoli
       {/* Header & Global Actions */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-500">
-            Portfolio Dashboard
-          </h1>
-          <p className="mt-2 text-zinc-500 dark:text-zinc-400 font-medium">Keep track of your NSE/BSE investments seamlessly.</p>
+          <div className="flex items-center gap-3 mb-1">
+            <div className="p-2 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900">
+              <Briefcase className="w-5 h-5" />
+            </div>
+            <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight">
+              Portfolio <span className="text-indigo-600 dark:text-indigo-400">Dashboard</span>
+            </h1>
+          </div>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 ml-12">Keep track of your NSE/BSE investments seamlessly.</p>
         </div>
         
         <div className="flex items-center gap-4">

@@ -39,14 +39,24 @@ const tools = [
     available: true,
   },
   {
+    name: "Send Nues",
+    description:
+      "Get curated, AI-summarized market signals — earnings, corporate actions, and price-moving news — tailored to your watchlist.",
+    icon: Newspaper,
+    href: "/sendNues",
+    color: "from-indigo-500 to-indigo-700 dark:from-indigo-400 dark:to-indigo-200",
+    iconColor: "text-white dark:text-zinc-900",
+    available: true,
+  },
+  {
     name: "Report Summarizer",
     description:
-      "Generate concise summaries of your trading activity and performance reports powered by AI analysis.",
+      "Paste any PDF URL or upload a document — annual reports, research notes, government filings — and get a tight AI summary of the key facts in seconds.",
     icon: FileText,
     href: "/reportSummarizer",
-    color: "from-zinc-600 to-zinc-800 dark:from-zinc-300 dark:to-zinc-100",
+    color: "from-violet-500 to-violet-700 dark:from-violet-400 dark:to-violet-200",
     iconColor: "text-white dark:text-zinc-900",
-    available: false,
+    available: true,
   },
   {
     name: "Pattern Recognizer",
@@ -266,6 +276,9 @@ export default function HomePage() {
           <div className="flex items-center gap-6 shrink-0">
             <Link href="/portfolioManager" className="text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors hidden sm:block">
               Portfolio Manager
+            </Link>
+            <Link href="/sendNues" className="text-sm font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors hidden md:block font-semibold">
+              SendNues
             </Link>
             <Link href="/reportSummarizer" className="text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors hidden md:block">
               Report Summarizer
