@@ -25,6 +25,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           where: { email: credentials.email },
         });
 
+        if (!user && process.env.BYPASS_AUTH === "true") {
+          return { id: "bypass-id", name: "Local Dev User", email: credentials.email };
+        }
+
         if (!user) return null;
 
         // If user has a password set, verify it
