@@ -179,17 +179,17 @@ export function Sidebar({ user }: { user?: NextAuthUser }) {
             </div>
           )}
 
-          {/* ── SendNues ── */}
+          {/* ── SendNews ── */}
           <Link
-            href="/sendNues"
-            className={linkClass(isToolActive("/sendNues") ?? false)}
+            href="/sendNews"
+            className={linkClass(isToolActive("/sendNews") ?? false)}
           >
             <Newspaper
-              className={iconClass(isToolActive("/sendNues") ?? false)}
+              className={iconClass(isToolActive("/sendNews") ?? false)}
             />
             {!collapsed && (
               <span className="flex items-center gap-2">
-                Send Nues
+                Send News
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-semibold leading-none">
                   New
                 </span>

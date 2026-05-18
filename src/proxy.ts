@@ -6,7 +6,7 @@ const { auth } = NextAuth(authConfig)
 const BYPASS_AUTH = process.env.BYPASS_AUTH === 'true';
 
 // Routes that require authentication
-const PROTECTED_PREFIXES = ['/portfolioManager', '/sendNues', '/reportSummarizer', '/patternRecognizer', '/settings'];
+const PROTECTED_PREFIXES = ['/portfolioManager', '/sendNews', '/reportSummarizer', '/patternRecognizer', '/settings'];
 
 export default auth((req) => {
   const { nextUrl } = req;

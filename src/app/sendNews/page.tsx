@@ -131,7 +131,7 @@ function NewsCard({ item }: { item: FeedItem }) {
   );
 }
 
-export default function SendNuesPage() {
+export default function SendNewsPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("all");
   const [items, setItems] = useState<FeedItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -143,7 +143,7 @@ export default function SendNuesPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/sendNues/feed");
+      const res = await fetch("/api/sendNews/feed");
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || "Failed to load feed.");
@@ -183,7 +183,7 @@ export default function SendNuesPage() {
               <Newspaper className="w-5 h-5" />
             </div>
             <h1 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight">
-              Send <span className="text-indigo-600 dark:text-indigo-400">Nues</span>
+              Send <span className="text-indigo-600 dark:text-indigo-400">News</span>
             </h1>
           </div>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 ml-12">

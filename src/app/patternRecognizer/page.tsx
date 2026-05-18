@@ -6,7 +6,7 @@ import { TrendingUp, Clock } from "lucide-react";
 export default function PatternRecognizerPage() {
   return (
     <div className="space-y-8">
-      {/* Header — matches Send Nues / Report Summarizer / Portfolio Dashboard style */}
+      {/* Header — matches Send News / Report Summarizer / Portfolio Dashboard style */}
       <div>
         <div className="flex items-center gap-3 mb-1">
           <div className="p-2 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900">

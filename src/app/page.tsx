@@ -39,11 +39,11 @@ const tools = [
     available: true,
   },
   {
-    name: "Send Nues",
+    name: "Send News",
     description:
       "Get curated, AI-summarized market signals — earnings, corporate actions, and price-moving news — tailored to your watchlist.",
     icon: Newspaper,
-    href: "/sendNues",
+    href: "/sendNews",
     color: "from-indigo-500 to-indigo-700 dark:from-indigo-400 dark:to-indigo-200",
     iconColor: "text-white dark:text-zinc-900",
     available: true,
@@ -277,8 +277,8 @@ export default function HomePage() {
             <Link href="/portfolioManager" className="text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors hidden sm:block">
               Portfolio Manager
             </Link>
-            <Link href="/sendNues" className="text-sm font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors hidden md:block font-semibold">
-              SendNues
+            <Link href="/sendNews" className="text-sm font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors hidden md:block font-semibold">
+              Send News
             </Link>
             <Link href="/reportSummarizer" className="text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors hidden md:block">
               Report Summarizer

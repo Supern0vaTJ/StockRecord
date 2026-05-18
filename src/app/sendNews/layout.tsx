@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 
-export default function SendNuesLayout({
+export default function SendNewsLayout({
   children,
 }: {
   children: React.ReactNode;
