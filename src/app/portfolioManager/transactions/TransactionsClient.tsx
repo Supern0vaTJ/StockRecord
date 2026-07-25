@@ -79,6 +79,7 @@ export function TransactionsClient({ initialPortfolios }: { initialPortfolios: a
       "Realized P&L (₹)": tx.type === "SELL" ? tx.profit : 0
     }));
 
+    exportData.reverse();
     const filename = targetId === "ALL" ? "Global_Transactions.csv" : `${portfolios.find(p => p.id === targetId)?.name}_Transactions.csv`;
     exportToCsv(filename, exportData);
   }

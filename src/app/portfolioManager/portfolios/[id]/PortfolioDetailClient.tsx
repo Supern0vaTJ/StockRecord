@@ -170,7 +170,7 @@ export default function PortfolioDetailClient({ portfolio }: { portfolio: any })
     });
     
     if (exportData.length === 0) return alert("No transactions to download.");
-    exportData.sort((a,b) => new Date(b["Date"]).getTime() - new Date(a["Date"]).getTime());
+    exportData.sort((a,b) => new Date(a["Date"]).getTime() - new Date(b["Date"]).getTime());
     exportToCsv(`${portfolio.name}_Transactions.csv`, exportData);
   }
 

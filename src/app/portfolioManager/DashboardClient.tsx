@@ -153,7 +153,7 @@ export default function DashboardClient({ initialPortfolios }: { initialPortfoli
       return;
     }
 
-    exportData.sort((a,b) => new Date(b["Date"]).getTime() - new Date(a["Date"]).getTime());
+    exportData.sort((a,b) => new Date(a["Date"]).getTime() - new Date(b["Date"]).getTime());
     
     const filename = targetId === "ALL" ? "Global_Transactions.csv" : `${portfolios.find(p => p.id === targetId)?.name}_Transactions.csv`;
     exportToCsv(filename, exportData);
