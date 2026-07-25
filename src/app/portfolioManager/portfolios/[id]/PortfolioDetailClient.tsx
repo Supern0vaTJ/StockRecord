@@ -98,9 +98,18 @@ export default function PortfolioDetailClient({ portfolio }: { portfolio: any })
       totalCostBasis += a.quantity * a.averagePrice
       totalMarketValue += a.quantity * (livePrices[a.symbol] ?? a.averagePrice)
     }
-    a.transactions?.forEach((t: any) => {
-      if (t.type === "SELL") realizedProfit += (t.price - a.averagePrice) * t.quantity
-    })
+    let qty = 0;
+    let avgPrice = 0;
+    const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => new Date(t1.date).getTime() - new Date(t2.date).getTime());
+    sortedTxs.forEach((t: any) => {
+      if (t.type === "BUY") {
+        qty += t.quantity;
+        avgPrice = (qty === t.quantity) ? t.price : ((qty - t.quantity) * avgPrice + t.quantity * t.price) / qty;
+      } else if (t.type === "SELL") {
+        realizedProfit += (t.price - avgPrice) * t.quantity;
+        qty -= t.quantity;
+      }
+    });
   })
 
   // ── Table header helper ─────────────────────────────────────────────────────
@@ -327,9 +336,19 @@ export default function PortfolioDetailClient({ portfolio }: { portfolio: any })
               </thead>
               <tbody>
                 {soldAssets.map((asset: any) => {
-                  const realized = (asset.transactions ?? [])
-                    .filter((t: any) => t.type === "SELL")
-                    .reduce((s: number, t: any) => s + (t.price - asset.averagePrice) * t.quantity, 0)
+                  let realized = 0;
+                  let qty = 0;
+                  let avgPrice = 0;
+                  const sortedTxs = [...(asset.transactions || [])].sort((t1, t2) => new Date(t1.date).getTime() - new Date(t2.date).getTime());
+                  sortedTxs.forEach((t: any) => {
+                    if (t.type === "BUY") {
+                      qty += t.quantity;
+                      avgPrice = (qty === t.quantity) ? t.price : ((qty - t.quantity) * avgPrice + t.quantity * t.price) / qty;
+                    } else if (t.type === "SELL") {
+                      realized += (t.price - avgPrice) * t.quantity;
+                      qty -= t.quantity;
+                    }
+                  });
                   return (
                     <motion.tr variants={item} key={asset.id} className="border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
                       <td className="p-4 pl-6">

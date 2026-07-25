@@ -10,8 +10,14 @@ export function SoldAssetsDialog({ portfolios, children }: { portfolios: any[], 
   
   portfolios?.forEach(p => {
     p.assets?.forEach((a: any) => {
-      a.transactions?.forEach((t: any) => {
-        if (t.type === "SELL") {
+      let qty = 0;
+      let avgPrice = 0;
+      const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => new Date(t1.date).getTime() - new Date(t2.date).getTime());
+      sortedTxs.forEach((t: any) => {
+        if (t.type === "BUY") {
+          qty += t.quantity;
+          avgPrice = (qty === t.quantity) ? t.price : ((qty - t.quantity) * avgPrice + t.quantity * t.price) / qty;
+        } else if (t.type === "SELL") {
           soldTransactions.push({
             id: t.id,
             date: t.date,
@@ -20,11 +26,12 @@ export function SoldAssetsDialog({ portfolios, children }: { portfolios: any[], 
             assetName: a.name,
             quantity: t.quantity,
             price: t.price,
-            costBasis: a.averagePrice,
-            profit: (t.price - a.averagePrice) * t.quantity
-          })
+            costBasis: avgPrice,
+            profit: (t.price - avgPrice) * t.quantity
+          });
+          qty -= t.quantity;
         }
-      })
+      });
     })
   })
 

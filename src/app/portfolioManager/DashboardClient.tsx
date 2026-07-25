@@ -45,9 +45,16 @@ export default function DashboardClient({ initialPortfolios }: { initialPortfoli
 
   filteredPortfolios.forEach(p => {
     p.assets?.forEach((a: any) => {
-      a.transactions?.forEach((t: any) => {
-        if (t.type === "SELL") {
-          globalNetProfit += ((t.price - a.averagePrice) * t.quantity)
+      let qty = 0;
+      let avgPrice = 0;
+      const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => new Date(t1.date).getTime() - new Date(t2.date).getTime());
+      sortedTxs.forEach((t: any) => {
+        if (t.type === "BUY") {
+          qty += t.quantity;
+          avgPrice = (qty === t.quantity) ? t.price : ((qty - t.quantity) * avgPrice + t.quantity * t.price) / qty;
+        } else if (t.type === "SELL") {
+          globalNetProfit += (t.price - avgPrice) * t.quantity;
+          qty -= t.quantity;
         }
       })
       if (a.quantity > 0) {
@@ -217,9 +224,18 @@ export default function DashboardClient({ initialPortfolios }: { initialPortfoli
                 pLiveValue += a.quantity * lp
               })
               portfolio.assets?.forEach((a: any) => {
-                a.transactions?.forEach((t: any) => {
-                  if (t.type === "SELL") pRealizedPnl += (t.price - a.averagePrice) * t.quantity
-                })
+                let qty = 0;
+                let avgPrice = 0;
+                const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => new Date(t1.date).getTime() - new Date(t2.date).getTime());
+                sortedTxs.forEach((t: any) => {
+                  if (t.type === "BUY") {
+                    qty += t.quantity;
+                    avgPrice = (qty === t.quantity) ? t.price : ((qty - t.quantity) * avgPrice + t.quantity * t.price) / qty;
+                  } else if (t.type === "SELL") {
+                    pRealizedPnl += (t.price - avgPrice) * t.quantity;
+                    qty -= t.quantity;
+                  }
+                });
               })
               const pUnrealized = pLiveValue - pCost
 

@@ -9,18 +9,36 @@ export function LocalTransactionDialog({ portfolio, children }: { portfolio: any
   const transactions: any[] = []
   
   portfolio.assets?.forEach((a: any) => {
-    a.transactions?.forEach((t: any) => {
-      const profit = t.type === "SELL" ? (t.price - a.averagePrice) * t.quantity : 0;
-      transactions.push({
-        id: t.id,
-        date: t.date,
-        symbol: a.symbol,
-        type: t.type,
-        quantity: t.quantity,
-        price: t.price,
-        profit
-      })
-    })
+    let qty = 0;
+    let avgPrice = 0;
+    const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => new Date(t1.date).getTime() - new Date(t2.date).getTime());
+    sortedTxs.forEach((t: any) => {
+      if (t.type === "BUY") {
+        qty += t.quantity;
+        avgPrice = (qty === t.quantity) ? t.price : ((qty - t.quantity) * avgPrice + t.quantity * t.price) / qty;
+        transactions.push({
+          id: t.id,
+          date: t.date,
+          symbol: a.symbol,
+          type: t.type,
+          quantity: t.quantity,
+          price: t.price,
+          profit: 0
+        });
+      } else if (t.type === "SELL") {
+        const profit = (t.price - avgPrice) * t.quantity;
+        transactions.push({
+          id: t.id,
+          date: t.date,
+          symbol: a.symbol,
+          type: t.type,
+          quantity: t.quantity,
+          price: t.price,
+          profit
+        });
+        qty -= t.quantity;
+      }
+    });
   })
 
   transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
