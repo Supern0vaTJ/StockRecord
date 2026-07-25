@@ -3,6 +3,8 @@ import { useState, useEffect, useMemo } from "react"
 import { motion, Variants } from "framer-motion"
 import { Filter, Wallet } from "lucide-react"
 import Link from "next/link"
+import { CsvDownloadDropdown } from "@/components/dashboard/CsvDownloadDropdown"
+import { exportToCsv } from "@/lib/exportToCsv"
 
 export function HoldingsClient({ initialPortfolios }: { initialPortfolios: any[] }) {
   const [portfolios] = useState(initialPortfolios)
@@ -54,6 +56,35 @@ export function HoldingsClient({ initialPortfolios }: { initialPortfolios: any[]
       .catch(err => console.error(err))
   }, [symbolsKey])
 
+  const handleDownload = (targetId: string | "ALL") => {
+    const exportData: any[] = [];
+    portfolios.forEach(p => {
+      if (targetId !== "ALL" && p.id !== targetId) return;
+      p.assets?.forEach((a: any) => {
+        if (a.quantity > 0) {
+          const currentPrice = livePrices[a.symbol] || a.averagePrice;
+          exportData.push({
+            "Portfolio Name": p.name,
+            "Symbol": a.symbol,
+            "Asset Name": a.name || a.type,
+            "Quantity": a.quantity,
+            "Average Cost (₹)": a.averagePrice,
+            "Live Price (₹)": currentPrice,
+            "Unrealized P&L (₹)": (currentPrice - a.averagePrice) * a.quantity
+          });
+        }
+      });
+    });
+    
+    if (exportData.length === 0) {
+      alert("No active holdings to download for this selection.");
+      return;
+    }
+    
+    const filename = targetId === "ALL" ? "Global_Holdings.csv" : `${portfolios.find(p => p.id === targetId)?.name}_Holdings.csv`;
+    exportToCsv(filename, exportData);
+  }
+
   return (
     <div className="space-y-8 relative">
       <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-br from-blue-500/10 via-emerald-500/10 to-transparent blur-[100px] -z-10 pointer-events-none rounded-full" />
@@ -67,7 +98,8 @@ export function HoldingsClient({ initialPortfolios }: { initialPortfolios: any[]
           <p className="mt-2 text-zinc-500 dark:text-zinc-400 font-medium">All active positions mapped across your filtered environments.</p>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <CsvDownloadDropdown label="Download Holdings" portfolios={portfolios} onDownload={handleDownload} />
           <div className="flex items-center gap-2 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md rounded-2xl border border-zinc-200 dark:border-zinc-800 px-3 py-1.5 shadow-sm">
             <Filter className="w-4 h-4 text-zinc-500" />
             <select

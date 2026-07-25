@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation"
 import { AddAssetDialog } from "@/components/dashboard/AddAssetDialog"
 import { TransactionDialog } from "@/components/dashboard/TransactionDialog"
 import { LocalTransactionDialog } from "@/components/dashboard/LocalTransactionDialog"
+import { exportToCsv } from "@/lib/exportToCsv"
+import { Download } from "lucide-react"
 
 // ── Confirm-delete inline pill ──────────────────────────────────────────────
 function DeleteAssetButton({ assetId, label = "Delete" }: { assetId: string; label?: string }) {
@@ -119,6 +121,59 @@ export default function PortfolioDetailClient({ portfolio }: { portfolio: any })
     </th>
   )
 
+  const downloadHoldings = () => {
+    const exportData = activeAssets.map((a: any) => {
+      const currentPrice = livePrices[a.symbol] || a.averagePrice;
+      return {
+        "Symbol": a.symbol,
+        "Asset Name": a.name || a.type,
+        "Quantity": a.quantity,
+        "Average Cost (₹)": a.averagePrice,
+        "Live Price (₹)": currentPrice,
+        "Unrealized P&L (₹)": (currentPrice - a.averagePrice) * a.quantity
+      };
+    });
+    if (exportData.length === 0) return alert("No active holdings to download.");
+    exportToCsv(`${portfolio.name}_Holdings.csv`, exportData);
+  }
+
+  const downloadTransactions = () => {
+    const exportData: any[] = [];
+    (portfolio.assets ?? []).forEach((a: any) => {
+      let qty = 0;
+      let avgPrice = 0;
+      const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => new Date(t1.date).getTime() - new Date(t2.date).getTime());
+      sortedTxs.forEach((t: any) => {
+        if (t.type === "BUY") {
+          qty += t.quantity;
+          avgPrice = (qty === t.quantity) ? t.price : ((qty - t.quantity) * avgPrice + t.quantity * t.price) / qty;
+          exportData.push({
+            "Date": new Date(t.date).toLocaleString(),
+            "Symbol": a.symbol,
+            "Type": t.type,
+            "Quantity": t.quantity,
+            "Execution Price (₹)": t.price,
+            "Realized P&L (₹)": 0
+          });
+        } else if (t.type === "SELL") {
+          exportData.push({
+            "Date": new Date(t.date).toLocaleString(),
+            "Symbol": a.symbol,
+            "Type": t.type,
+            "Quantity": t.quantity,
+            "Execution Price (₹)": t.price,
+            "Realized P&L (₹)": (t.price - avgPrice) * t.quantity
+          });
+          qty -= t.quantity;
+        }
+      });
+    });
+    
+    if (exportData.length === 0) return alert("No transactions to download.");
+    exportData.sort((a,b) => new Date(b["Date"]).getTime() - new Date(a["Date"]).getTime());
+    exportToCsv(`${portfolio.name}_Transactions.csv`, exportData);
+  }
+
   return (
     <div className="space-y-10 relative">
       <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-transparent blur-[100px] -z-10 pointer-events-none rounded-full" />
@@ -136,16 +191,32 @@ export default function PortfolioDetailClient({ portfolio }: { portfolio: any })
           </h1>
           <p className="mt-2 text-zinc-500 dark:text-zinc-400 font-medium">Manage assets and track performance.</p>
         </div>
-        <AddAssetDialog portfolioId={portfolio.id}>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full font-semibold shadow-lg shadow-zinc-900/20 dark:shadow-white/20 hover:shadow-xl transition-all"
+        <div className="flex flex-wrap items-center gap-3 mt-4 md:mt-0">
+          <button
+            onClick={downloadHoldings}
+            className="flex items-center gap-2 px-4 py-2 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm text-sm font-semibold text-zinc-800 dark:text-zinc-200 hover:bg-white dark:hover:bg-zinc-800 transition-colors"
           >
-            <Plus className="w-5 h-5" />
-            <span>Add Asset</span>
-          </motion.button>
-        </AddAssetDialog>
+            <Download className="w-4 h-4 text-blue-500" />
+            <span className="hidden sm:inline">Holdings</span>
+          </button>
+          <button
+            onClick={downloadTransactions}
+            className="flex items-center gap-2 px-4 py-2 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm text-sm font-semibold text-zinc-800 dark:text-zinc-200 hover:bg-white dark:hover:bg-zinc-800 transition-colors"
+          >
+            <Download className="w-4 h-4 text-indigo-500" />
+            <span className="hidden sm:inline">Transactions</span>
+          </button>
+          <AddAssetDialog portfolioId={portfolio.id}>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full font-semibold shadow-lg shadow-zinc-900/20 dark:shadow-white/20 hover:shadow-xl transition-all"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Add Asset</span>
+            </motion.button>
+          </AddAssetDialog>
+        </div>
       </motion.div>
 
       {/* Summary Cards */}

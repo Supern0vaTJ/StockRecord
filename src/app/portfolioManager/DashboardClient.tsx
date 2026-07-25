@@ -5,6 +5,8 @@ import { Plus, ArrowUpRight, TrendingUp, Wallet, Activity, Briefcase, History, F
 import { AddPortfolioDialog } from "@/components/dashboard/AddPortfolioDialog"
 import { EditPortfolioDialog } from "@/components/dashboard/EditPortfolioDialog"
 import { SoldAssetsDialog } from "@/components/dashboard/SoldAssetsDialog"
+import { CsvDownloadDropdown } from "@/components/dashboard/CsvDownloadDropdown"
+import { exportToCsv } from "@/lib/exportToCsv"
 import Link from "next/link"
 
 export default function DashboardClient({ initialPortfolios }: { initialPortfolios: any[] }) {
@@ -80,6 +82,83 @@ export default function DashboardClient({ initialPortfolios }: { initialPortfoli
   const formattedTotalValue = `₹${totalLiveValue.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   const formattedNetProfit = `${globalNetProfit >= 0 ? "+" : "-"}₹${Math.abs(globalNetProfit).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
+  const handleDownloadHoldings = (targetId: string | "ALL") => {
+    const exportData: any[] = [];
+    portfolios.forEach(p => {
+      if (targetId !== "ALL" && p.id !== targetId) return;
+      p.assets?.forEach((a: any) => {
+        if (a.quantity > 0) {
+          const currentPrice = livePrices[a.symbol] || a.averagePrice;
+          exportData.push({
+            "Portfolio Name": p.name,
+            "Symbol": a.symbol,
+            "Asset Name": a.name || a.type,
+            "Quantity": a.quantity,
+            "Average Cost (₹)": a.averagePrice,
+            "Live Price (₹)": currentPrice,
+            "Unrealized P&L (₹)": (currentPrice - a.averagePrice) * a.quantity
+          });
+        }
+      });
+    });
+    
+    if (exportData.length === 0) {
+      alert("No active holdings to download for this selection.");
+      return;
+    }
+    
+    const filename = targetId === "ALL" ? "Global_Holdings.csv" : `${portfolios.find(p => p.id === targetId)?.name}_Holdings.csv`;
+    exportToCsv(filename, exportData);
+  }
+
+  const handleDownloadTransactions = (targetId: string | "ALL") => {
+    const exportData: any[] = [];
+    portfolios.forEach(p => {
+      if (targetId !== "ALL" && p.id !== targetId) return;
+      p.assets?.forEach((a: any) => {
+        let qty = 0;
+        let avgPrice = 0;
+        const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => new Date(t1.date).getTime() - new Date(t2.date).getTime());
+        sortedTxs.forEach((t: any) => {
+          if (t.type === "BUY") {
+            qty += t.quantity;
+            avgPrice = (qty === t.quantity) ? t.price : ((qty - t.quantity) * avgPrice + t.quantity * t.price) / qty;
+            exportData.push({
+              "Date": new Date(t.date).toLocaleString(),
+              "Portfolio Name": p.name,
+              "Symbol": a.symbol,
+              "Type": t.type,
+              "Quantity": t.quantity,
+              "Execution Price (₹)": t.price,
+              "Realized P&L (₹)": 0
+            });
+          } else if (t.type === "SELL") {
+            exportData.push({
+              "Date": new Date(t.date).toLocaleString(),
+              "Portfolio Name": p.name,
+              "Symbol": a.symbol,
+              "Type": t.type,
+              "Quantity": t.quantity,
+              "Execution Price (₹)": t.price,
+              "Realized P&L (₹)": (t.price - avgPrice) * t.quantity
+            });
+            qty -= t.quantity;
+          }
+        });
+      });
+    });
+
+    if (exportData.length === 0) {
+      alert("No transactions to download for this selection.");
+      return;
+    }
+
+    exportData.sort((a,b) => new Date(b["Date"]).getTime() - new Date(a["Date"]).getTime());
+    
+    const filename = targetId === "ALL" ? "Global_Transactions.csv" : `${portfolios.find(p => p.id === targetId)?.name}_Transactions.csv`;
+    exportToCsv(filename, exportData);
+  }
+
   return (
     <div className="space-y-8 relative">
       <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-fuchsia-500/20 blur-[100px] -z-10 pointer-events-none rounded-full" />
@@ -98,7 +177,9 @@ export default function DashboardClient({ initialPortfolios }: { initialPortfoli
           <p className="text-sm text-zinc-500 dark:text-zinc-400 ml-12">Keep track of your NSE/BSE investments seamlessly.</p>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4 mt-4 md:mt-0">
+          <CsvDownloadDropdown label="Holdings" portfolios={portfolios} onDownload={handleDownloadHoldings} />
+          <CsvDownloadDropdown label="Transactions" portfolios={portfolios} onDownload={handleDownloadTransactions} />
           <div className="flex items-center gap-2 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md rounded-2xl border border-zinc-200 dark:border-zinc-800 px-3 py-1.5 shadow-sm">
             <Filter className="w-4 h-4 text-zinc-500" />
             <select

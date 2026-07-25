@@ -3,6 +3,8 @@ import { useState } from "react"
 import { motion, Variants } from "framer-motion"
 import { Filter, ArrowRightLeft } from "lucide-react"
 import Link from "next/link"
+import { CsvDownloadDropdown } from "@/components/dashboard/CsvDownloadDropdown"
+import { exportToCsv } from "@/lib/exportToCsv"
 
 export function TransactionsClient({ initialPortfolios }: { initialPortfolios: any[] }) {
   const [portfolios] = useState(initialPortfolios)
@@ -25,21 +27,61 @@ export function TransactionsClient({ initialPortfolios }: { initialPortfolios: a
     if (!matchesFilter) return;
 
     p.assets?.forEach((a: any) => {
-      a.transactions?.forEach((t: any) => {
-        globalTransactions.push({
-          ...t,
-          portfolioName: p.name,
-          portfolioId: p.id,
-          symbol: a.symbol,
-          assetName: a.name,
-          profit: t.type === "SELL" ? (t.price - a.averagePrice) * t.quantity : 0
-        });
+      let qty = 0;
+      let avgPrice = 0;
+      const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => new Date(t1.date).getTime() - new Date(t2.date).getTime());
+      sortedTxs.forEach((t: any) => {
+        if (t.type === "BUY") {
+          qty += t.quantity;
+          avgPrice = (qty === t.quantity) ? t.price : ((qty - t.quantity) * avgPrice + t.quantity * t.price) / qty;
+          globalTransactions.push({
+            ...t,
+            portfolioName: p.name,
+            portfolioId: p.id,
+            symbol: a.symbol,
+            assetName: a.name,
+            profit: 0
+          });
+        } else if (t.type === "SELL") {
+          const profit = (t.price - avgPrice) * t.quantity;
+          globalTransactions.push({
+            ...t,
+            portfolioName: p.name,
+            portfolioId: p.id,
+            symbol: a.symbol,
+            assetName: a.name,
+            profit
+          });
+          qty -= t.quantity;
+        }
       });
     });
   });
 
   // Sort descending by date
   globalTransactions.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const handleDownload = (targetId: string | "ALL") => {
+    const filtered = globalTransactions.filter(tx => targetId === "ALL" || tx.portfolioId === targetId);
+    if (filtered.length === 0) {
+      alert("No transactions to download for this selection.");
+      return;
+    }
+    
+    const exportData = filtered.map(tx => ({
+      "Date": new Date(tx.date).toLocaleString(),
+      "Portfolio Name": tx.portfolioName,
+      "Symbol": tx.symbol,
+      "Asset Name": tx.assetName,
+      "Type": tx.type,
+      "Quantity": tx.quantity,
+      "Execution Price (₹)": tx.price,
+      "Realized P&L (₹)": tx.type === "SELL" ? tx.profit : 0
+    }));
+
+    const filename = targetId === "ALL" ? "Global_Transactions.csv" : `${portfolios.find(p => p.id === targetId)?.name}_Transactions.csv`;
+    exportToCsv(filename, exportData);
+  }
 
   return (
     <div className="space-y-8 relative">
@@ -54,7 +96,8 @@ export function TransactionsClient({ initialPortfolios }: { initialPortfolios: a
           <p className="mt-2 text-zinc-500 dark:text-zinc-400 font-medium">A chronological ledger accounting for every execution mapping to your structured portfolios.</p>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <CsvDownloadDropdown label="Download Transactions" portfolios={portfolios} onDownload={handleDownload} />
           <div className="flex items-center gap-2 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md rounded-2xl border border-zinc-200 dark:border-zinc-800 px-3 py-1.5 shadow-sm">
             <Filter className="w-4 h-4 text-zinc-500" />
             <select
