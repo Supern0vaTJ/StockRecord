@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/Dialog"
+import { EditTransactionDialog } from "@/components/dashboard/EditTransactionDialog"
 
 export function LocalTransactionDialog({ portfolio, children }: { portfolio: any, children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
@@ -11,7 +12,7 @@ export function LocalTransactionDialog({ portfolio, children }: { portfolio: any
   portfolio.assets?.forEach((a: any) => {
     let qty = 0;
     let avgPrice = 0;
-    const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => new Date(t1.date).getTime() - new Date(t2.date).getTime());
+    const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => { const diff = new Date(t1.date).getTime() - new Date(t2.date).getTime(); return diff !== 0 ? diff : t1.id.localeCompare(t2.id); });
     sortedTxs.forEach((t: any) => {
       if (t.type === "BUY") {
         qty += t.quantity;
@@ -72,6 +73,7 @@ export function LocalTransactionDialog({ portfolio, children }: { portfolio: any
                     <th className="pb-3 border-b font-medium text-right">Quantity</th>
                     <th className="pb-3 border-b font-medium text-right">Exec Price</th>
                     <th className="pb-3 border-b font-medium text-right">Realized P/L</th>
+                    <th className="pb-3 border-b font-medium text-right">Edit</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -90,6 +92,12 @@ export function LocalTransactionDialog({ portfolio, children }: { portfolio: any
                       <td className="py-4 text-right font-medium">₹{tx.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                       <td className={`py-4 text-right font-bold ${tx.type === "BUY" ? "text-zinc-400 dark:text-zinc-600" : tx.profit >= 0 ? "text-emerald-500" : "text-red-500"}`}>
                         {tx.type === "BUY" ? "-" : `${tx.profit >= 0 ? "+" : "-"}₹${Math.abs(tx.profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                      </td>
+                      <td className="py-4 text-right">
+                        <EditTransactionDialog
+                          transaction={{ id: tx.id, type: tx.type, quantity: tx.quantity, price: tx.price, date: tx.date }}
+                          symbol={tx.symbol}
+                        />
                       </td>
                     </tr>
                   ))}

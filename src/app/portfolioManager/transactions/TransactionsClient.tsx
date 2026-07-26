@@ -29,7 +29,7 @@ export function TransactionsClient({ initialPortfolios }: { initialPortfolios: a
     p.assets?.forEach((a: any) => {
       let qty = 0;
       let avgPrice = 0;
-      const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => new Date(t1.date).getTime() - new Date(t2.date).getTime());
+      const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => { const diff = new Date(t1.date).getTime() - new Date(t2.date).getTime(); return diff !== 0 ? diff : t1.id.localeCompare(t2.id); });
       sortedTxs.forEach((t: any) => {
         if (t.type === "BUY") {
           qty += t.quantity;

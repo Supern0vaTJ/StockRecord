@@ -102,7 +102,7 @@ export default function PortfolioDetailClient({ portfolio }: { portfolio: any })
     }
     let qty = 0;
     let avgPrice = 0;
-    const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => new Date(t1.date).getTime() - new Date(t2.date).getTime());
+    const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => { const diff = new Date(t1.date).getTime() - new Date(t2.date).getTime(); return diff !== 0 ? diff : t1.id.localeCompare(t2.id); });
     sortedTxs.forEach((t: any) => {
       if (t.type === "BUY") {
         qty += t.quantity;
@@ -142,7 +142,7 @@ export default function PortfolioDetailClient({ portfolio }: { portfolio: any })
     (portfolio.assets ?? []).forEach((a: any) => {
       let qty = 0;
       let avgPrice = 0;
-      const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => new Date(t1.date).getTime() - new Date(t2.date).getTime());
+      const sortedTxs = [...(a.transactions || [])].sort((t1, t2) => { const diff = new Date(t1.date).getTime() - new Date(t2.date).getTime(); return diff !== 0 ? diff : t1.id.localeCompare(t2.id); });
       sortedTxs.forEach((t: any) => {
         if (t.type === "BUY") {
           qty += t.quantity;
@@ -410,7 +410,7 @@ export default function PortfolioDetailClient({ portfolio }: { portfolio: any })
                   let realized = 0;
                   let qty = 0;
                   let avgPrice = 0;
-                  const sortedTxs = [...(asset.transactions || [])].sort((t1, t2) => new Date(t1.date).getTime() - new Date(t2.date).getTime());
+                  const sortedTxs = [...(asset.transactions || [])].sort((t1, t2) => { const diff = new Date(t1.date).getTime() - new Date(t2.date).getTime(); return diff !== 0 ? diff : t1.id.localeCompare(t2.id); });
                   sortedTxs.forEach((t: any) => {
                     if (t.type === "BUY") {
                       qty += t.quantity;
@@ -438,7 +438,14 @@ export default function PortfolioDetailClient({ portfolio }: { portfolio: any })
                         {realized >= 0 ? "+" : "-"}₹{Math.abs(realized).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                       <td className="p-4 pr-6 text-right">
-                        <DeleteAssetButton assetId={asset.id} label="Remove" />
+                        <div className="flex items-center justify-end gap-2">
+                          <TransactionDialog asset={asset}>
+                            <button className="text-sm font-semibold rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-3 py-1.5 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors">
+                              Trade Again
+                            </button>
+                          </TransactionDialog>
+                          <DeleteAssetButton assetId={asset.id} label="Remove" />
+                        </div>
                       </td>
                     </motion.tr>
                   )
