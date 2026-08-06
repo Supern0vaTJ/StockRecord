@@ -129,7 +129,7 @@ export function HoldingsClient({ initialPortfolios }: { initialPortfolios: any[]
                   <th className="p-4">Symbol / Name</th>
                   <th className="p-4 text-right">Quantity</th>
                   <th className="p-4 text-right">Avg Cost</th>
-                  <th className="p-4 text-right">Live Traded Price (₹)</th>
+                  <th className="p-4 text-right">Holding Value (₹)</th>
                   <th className="p-4 pr-6 text-right">Unrealized P&L</th>
                 </tr>
               </thead>
@@ -145,8 +145,8 @@ export function HoldingsClient({ initialPortfolios }: { initialPortfolios: any[]
                     </td>
                     <td className="p-4 text-right font-semibold">{asset.quantity}</td>
                     <td className="p-4 text-right">₹{asset.averagePrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                    <td className="p-4 text-right font-medium text-blue-600 dark:text-blue-400">
-                      {livePrices[asset.symbol] ? `₹${livePrices[asset.symbol].toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : "Loading..."}
+                    <td className="p-4 text-right font-semibold text-zinc-900 dark:text-white">
+                      ₹{(asset.quantity * asset.averagePrice).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                     </td>
                     <td className={`p-4 pr-6 text-right font-bold ${asset.totalUnrealized >= 0 ? "text-emerald-500" : "text-red-500"}`}>
                         {asset.totalUnrealized >= 0 ? "+" : "-"}₹{Math.abs(asset.totalUnrealized).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}

@@ -278,7 +278,7 @@ export default function PortfolioDetailClient({ portfolio }: { portfolio: any })
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-zinc-800 text-sm bg-zinc-50/80 dark:bg-zinc-800/20">
                   <Th>Symbol / Name</Th>
-                  <Th>Type</Th>
+                  <Th right>Holding Value (₹)</Th>
                   <Th right>Qty</Th>
                   <Th right>Avg Cost</Th>
                   <Th right>LTP (₹)</Th>
@@ -298,10 +298,8 @@ export default function PortfolioDetailClient({ portfolio }: { portfolio: any })
                         <div className="font-bold text-zinc-900 dark:text-white">{asset.symbol}</div>
                         <div className="text-sm text-zinc-500">{asset.name}</div>
                       </td>
-                      <td className="p-4">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200">
-                          {asset.type}
-                        </span>
+                      <td className="p-4 text-right font-semibold text-zinc-900 dark:text-white">
+                        ₹{(asset.quantity * asset.averagePrice).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                       <td className="p-4 text-right font-semibold">{asset.quantity}</td>
                       <td className="p-4 text-right font-medium">
@@ -399,7 +397,7 @@ export default function PortfolioDetailClient({ portfolio }: { portfolio: any })
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-zinc-800 text-sm bg-zinc-50/80 dark:bg-zinc-800/20">
                   <Th>Symbol / Name</Th>
-                  <Th>Type</Th>
+                  <Th right>Sold Value (₹)</Th>
                   <Th right>Trades</Th>
                   <Th right>Realized P&L</Th>
                   <Th right>Actions</Th>
@@ -410,12 +408,14 @@ export default function PortfolioDetailClient({ portfolio }: { portfolio: any })
                   let realized = 0;
                   let qty = 0;
                   let avgPrice = 0;
+                  let totalSellValue = 0;
                   const sortedTxs = [...(asset.transactions || [])].sort((t1, t2) => { const diff = new Date(t1.date).getTime() - new Date(t2.date).getTime(); return diff !== 0 ? diff : t1.id.localeCompare(t2.id); });
                   sortedTxs.forEach((t: any) => {
                     if (t.type === "BUY") {
                       qty += t.quantity;
                       avgPrice = (qty === t.quantity) ? t.price : ((qty - t.quantity) * avgPrice + t.quantity * t.price) / qty;
                     } else if (t.type === "SELL") {
+                      totalSellValue += t.quantity * t.price;
                       realized += (t.price - avgPrice) * t.quantity;
                       qty -= t.quantity;
                     }
@@ -426,10 +426,8 @@ export default function PortfolioDetailClient({ portfolio }: { portfolio: any })
                         <div className="font-bold text-zinc-900 dark:text-white">{asset.symbol}</div>
                         <div className="text-sm text-zinc-500">{asset.name}</div>
                       </td>
-                      <td className="p-4">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200">
-                          {asset.type}
-                        </span>
+                      <td className="p-4 text-right font-medium text-zinc-800 dark:text-zinc-200">
+                        ₹{totalSellValue.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                       <td className="p-4 text-right text-sm font-medium text-zinc-500">
                         {asset.transactions?.length ?? 0}
